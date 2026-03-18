@@ -86,7 +86,7 @@ func (w *WebSSOAuthentication) authorizeWithBrowser() (*okta.AccessToken, error)
 			resultCh <- callbackResult{
 				err: fmt.Errorf("authorization error: %s - %s", errParam, errDesc),
 			}
-			_, _ = fmt.Fprintf(rw, "<html><body><h1>Authorization Failed</h1><p>%s: %s</p><p>You may close this window.</p></body></html>",
+			_, _ = fmt.Fprintf(rw, "<html><body><h1>okta-aws-cli: Authorization Failed</h1><p>%s: %s</p><p>You may close this window.</p></body></html>",
 				html.EscapeString(errParam), html.EscapeString(errDesc))
 			return
 		}
@@ -98,12 +98,12 @@ func (w *WebSSOAuthentication) authorizeWithBrowser() (*okta.AccessToken, error)
 			resultCh <- callbackResult{
 				err: fmt.Errorf("no authorization code in callback"),
 			}
-			_, _ = fmt.Fprint(rw, "<html><body><h1>Error</h1><p>No authorization code received.</p></body></html>")
+			_, _ = fmt.Fprint(rw, "<html><body><h1>okta-aws-cli: Error</h1><p>No authorization code received.</p></body></html>")
 			return
 		}
 
 		resultCh <- callbackResult{code: code, state: returnedState}
-		_, _ = fmt.Fprint(rw, "<html><body><h1>Authorization Successful</h1><p>You may close this window and return to the CLI.</p></body></html>")
+		_, _ = fmt.Fprint(rw, "<html><body><h1>okta-aws-cli: Authorization Successful</h1><p>You may close this window and return to the CLI.</p></body></html>")
 	})
 
 	server := &http.Server{Handler: handler}

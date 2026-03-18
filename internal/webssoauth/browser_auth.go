@@ -201,7 +201,7 @@ func (w *WebSSOAuthentication) exchangeCodeForTokens(code, redirectURI, codeVeri
 }
 
 // errAllPortsBusy is returned when no callback port could be bound.
-var errAllPortsBusy = fmt.Errorf("all browser auth callback ports are in use")
+var errAllPortsBusy = fmt.Errorf("all auth-code-flow callback ports are in use")
 
 // listenCallbackPort starts an IPv4 loopback-only TCP listener for the OAuth
 // callback. It tries each port in callbackPorts and returns errAllPortsBusy

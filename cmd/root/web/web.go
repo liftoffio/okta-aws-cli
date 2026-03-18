@@ -77,11 +77,11 @@ var (
 			EnvVar: config.AllProfilesEnvVar,
 		},
 		{
-			Name:   config.BrowserAuthFlag,
+			Name:   config.AuthCodeFlowFlag,
 			Short:  "t",
 			Value:  false,
 			Usage:  "Use Authorization Code + PKCE flow with localhost redirect instead of device authorization",
-			EnvVar: config.BrowserAuthEnvVar,
+			EnvVar: config.AuthCodeFlowEnvVar,
 		},
 	}
 	requiredFlags = []interface{}{"org-domain", "oidc-client-id"}

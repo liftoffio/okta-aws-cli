@@ -132,10 +132,10 @@ func (w *WebSSOAuthentication) EstablishIAMCredentials() error {
 
 	at = utils.CachedAccessToken(w.config)
 	if at == nil {
-		if w.config.BrowserAuth() {
+		if w.config.AuthCodeFlow() {
 			at, err = w.authorizeWithBrowser()
 			if err == errAllPortsBusy {
-				w.consolePrint("All browser auth callback ports are busy, falling back to device authorization...\n\n")
+				w.consolePrint("All auth-code-flow callback ports are busy, falling back to device authorization...\n\n")
 				at, err = w.authorizeWithDevice()
 			}
 		} else {

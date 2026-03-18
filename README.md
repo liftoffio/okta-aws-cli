@@ -96,7 +96,7 @@ QR code that can be scanned by a handset to open a web browser there. After the
 human completes the authorization flow in a browser they return to the CLI to
 complete the process of retrieving AWS credentials.
 
-Alternatively, the `--browser-auth` flag enables an [Authorization Code + PKCE
+Alternatively, the `--auth-code-flow` flag enables an [Authorization Code + PKCE
 ](https://datatracker.ietf.org/doc/html/rfc7636) flow that starts a local
 HTTP server, opens the browser directly to Okta's authorize endpoint, and
 receives the callback automatically — no copy/paste or device code entry
@@ -148,7 +148,7 @@ The OIDC Native Application requires Grant Types `Authorization Code`, `Device
 Authorization` , and `Token Exchange`. These settings are in the Okta Admin UI
 at `Applications > [the OIDC app] > General Settings > Grant type`.
 
-If using `--browser-auth`, the OIDC app also needs **Login redirect URIs** for
+If using `--auth-code-flow`, the OIDC app also needs **Login redirect URIs** for
 the localhost callback. The CLI tries the following ports in order:
 `29219, 30841, 31425, 32587, 33149, 34762, 35918, 36043, 37651, 38297`.
 Add a redirect URI for each port you want to support, e.g.:
@@ -522,7 +522,7 @@ These settings are all optional:
 | Display QR Code | `true` if flag is present | `--qr-code` | `OKTA_AWSCLI_QR_CODE=true` |
 | Automatically open the activation URL with the system web browser | `true` if flag is present | `--open-browser` | `OKTA_AWSCLI_OPEN_BROWSER=true` |
 | Automatically open the activation URL with the given web browser command | Shell escaped browser command | `--open-browser-command [command]` | `OKTA_AWSCLI_OPEN_BROWSER_COMMAND` |
-| Use browser-based Authorization Code + PKCE flow instead of device authorization. Requires redirect URIs configured in the OIDC app. Falls back to device authorization if all callback ports are busy. | `true` if flag is present | `--browser-auth` | `OKTA_AWSCLI_BROWSER_AUTH=true` |
+| Use browser-based Authorization Code + PKCE flow instead of device authorization. Requires redirect URIs configured in the OIDC app. Falls back to device authorization if all callback ports are busy. | `true` if flag is present | `--auth-code-flow` | `OKTA_AWSCLI_AUTH_CODE_FLOW=true` |
 | Gather all profiles for all IdPs and Roles associated with an AWS Fed App (implies aws-credentials file output format) | `true` if flag is present | `--all-profiles` | `OKTA_AWSCLI_OPEN_BROWSER=true` |
 
 #### Allowed Web SSO Client ID

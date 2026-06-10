@@ -18,6 +18,7 @@ package web
 
 import (
 	"io/fs"
+	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -123,7 +124,19 @@ func NewWebCommand() *cobra.Command {
 				err = wsa.EstablishIAMCredentials()
 				apiErr, ok = err.(*okta.APIError)
 				if ok {
-					if apiErr.ErrorType == InvalidGrant && webssoauth.RemoveCachedAccessToken() {
+					// Okta sends this error_description with an invalid_grant
+					// when an authentication policy or app assignment rejects
+					// an otherwise-valid access token — e.g. the user isn't
+					// assigned to the AWS Federation app, or the fed app's
+					// policy demands a higher assurance level than the OIDC
+					// app's. Removing the cached token and re-authenticating
+					// with the same OIDC app can't change that outcome; it
+					// only discards a token that other invocations may be
+					// sharing. Retry only for other invalid_grant errors
+					// (e.g. a token revoked server-side), where a fresh
+					// authorization can help.
+					assurance := strings.Contains(apiErr.ErrorDescription, "assurance requirements are not met")
+					if apiErr.ErrorType == InvalidGrant && !assurance && webssoauth.RemoveCachedAccessToken() {
 						webssoauth.ConsolePrint(cfg, "Cached access token appears to be stale, removing token and retrying device authorization ...\n\n")
 						continue
 					}

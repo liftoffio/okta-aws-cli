@@ -344,6 +344,9 @@ func (w *WebSSOAuthentication) awsAssumeRoleWithSAML(iar *idpAndRole, assertion,
 		RoleArn:         aws.String(iar.role),
 		SAMLAssertion:   aws.String(assertion),
 	}
+	if policy := w.config.AWSSessionPolicy(); policy != "" {
+		input.Policy = aws.String(policy)
+	}
 	svcResp, err := svc.AssumeRoleWithSAML(input)
 	if err != nil {
 		err = fmt.Errorf("STS Assume Role With SAML API error; given idp: %q, role: %q, error: %w", iar.idp, iar.role, err)

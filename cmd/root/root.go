@@ -75,6 +75,12 @@ func init() {
 			EnvVar: config.AWSSessionDurationEnvVar,
 		},
 		{
+			Name:   config.AWSSessionPolicyFileFlag,
+			Value:  "",
+			Usage:  "Path to a JSON IAM policy to pass as an inline session policy when assuming the role. The credentials get only the permissions both it and the role allow.",
+			EnvVar: config.AWSSessionPolicyFileEnvVar,
+		},
+		{
 			// DEPRECATED
 			Name:   config.SessionDurationFlag,
 			Value:  "",

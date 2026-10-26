@@ -113,6 +113,9 @@ func AssumeRoleWithWebIdentity(cfg *config.Config, at *okta.AccessToken) (cc *Cr
 		RoleSessionName:  aws.String(cfg.AWSSTSRoleSessionName()),
 		WebIdentityToken: &at.AccessToken,
 	}
+	if policy := cfg.AWSSessionPolicy(); policy != "" {
+		input.Policy = aws.String(policy)
+	}
 	svcResp, err := svc.AssumeRoleWithWebIdentity(input)
 	if err != nil {
 		return

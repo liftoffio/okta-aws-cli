@@ -18,6 +18,7 @@ package config
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -82,6 +83,8 @@ const (
 	AWSRegionFlag = "aws-region"
 	// AWSSessionDurationFlag cli flag const
 	AWSSessionDurationFlag = "aws-session-duration"
+	// AWSSessionPolicyFileFlag cli flag const
+	AWSSessionPolicyFileFlag = "aws-session-policy-file"
 	// AWSSTSRoleSessionNameFlag cli flag const
 	AWSSTSRoleSessionNameFlag = "aws-sts-role-session-name"
 	// CustomScopeFlag cli flag const
@@ -148,6 +151,8 @@ const (
 	AWSIAMRoleEnvVar = "OKTA_AWSCLI_IAM_ROLE"
 	// AWSSessionDurationEnvVar env var const
 	AWSSessionDurationEnvVar = "OKTA_AWSCLI_SESSION_DURATION"
+	// AWSSessionPolicyFileEnvVar env var const
+	AWSSessionPolicyFileEnvVar = "OKTA_AWSCLI_SESSION_POLICY_FILE"
 	// AWSRegionEnvVar env var const
 	AWSRegionEnvVar = "OKTA_AWSCLI_AWS_REGION"
 	// AWSSTSRoleSessionNameEnvVar env var const
@@ -243,6 +248,7 @@ type OktaYamlConfigProfile struct {
 	AWSIAMRole            string `yaml:"aws-iam-role"`
 	AWSRegion             string `yaml:"aws-region"`
 	AWSSessionDuration    string `yaml:"aws-session-duration"`
+	AWSSessionPolicyFile  string `yaml:"aws-session-policy-file"`
 	AWSSTSRoleSessionName string `yaml:"aws-sts-role-session-name"`
 	CustomScope           string `yaml:"custom-scope"`
 	Debug                 string `yaml:"debug"`
@@ -287,6 +293,7 @@ type Config struct {
 	awsIAMRole            string
 	awsRegion             string
 	awsSessionDuration    int64
+	awsSessionPolicy      string
 	awsSTSRoleSessionName string
 	authCodeFlow          bool
 	cacheAccessToken      bool
@@ -325,6 +332,7 @@ type Attributes struct {
 	AWSIAMRole            string
 	AWSRegion             string
 	AWSSessionDuration    int64
+	AWSSessionPolicyFile  string
 	AWSSTSRoleSessionName string
 	AuthCodeFlow          bool
 	CacheAccessToken      bool
@@ -423,6 +431,10 @@ func NewConfig(attrs *Attributes) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
+	err = cfg.SetAWSSessionPolicyFile(attrs.AWSSessionPolicyFile)
+	if err != nil {
+		return nil, err
+	}
 	client := &http.Client{
 		Transport: newConfigTransport(cfg.DebugAPICalls()),
 		Timeout:   time.Second * time.Duration(60),
@@ -507,6 +519,7 @@ func loadConfigAttributesFromFlagsAndVars() (Attributes, error) {
 		AWSIAMRole:            viper.GetString(getFlagNameFromProfile(awsProfile, AWSIAMRoleFlag)),
 		AWSRegion:             viper.GetString(getFlagNameFromProfile(awsProfile, AWSRegionFlag)),
 		AWSSessionDuration:    viper.GetInt64(getFlagNameFromProfile(awsProfile, AWSSessionDurationFlag)),
+		AWSSessionPolicyFile:  viper.GetString(getFlagNameFromProfile(awsProfile, AWSSessionPolicyFileFlag)),
 		AWSSTSRoleSessionName: viper.GetString(getFlagNameFromProfile(awsProfile, AWSSTSRoleSessionNameFlag)),
 		CustomScope:           viper.GetString(getFlagNameFromProfile(awsProfile, CustomScopeFlag)),
 		Debug:                 viper.GetBool(getFlagNameFromProfile(awsProfile, DebugFlag)),
@@ -565,6 +578,9 @@ func loadConfigAttributesFromFlagsAndVars() (Attributes, error) {
 	}
 	if attrs.AWSSTSRoleSessionName == "" {
 		attrs.AWSSTSRoleSessionName = viper.GetString(downCase(AWSSTSRoleSessionNameEnvVar))
+	}
+	if attrs.AWSSessionPolicyFile == "" {
+		attrs.AWSSessionPolicyFile = viper.GetString(downCase(AWSSessionPolicyFileEnvVar))
 	}
 	if !attrs.QRCode {
 		attrs.QRCode = viper.GetBool(downCase(QRCodeEnvVar))
@@ -778,6 +794,32 @@ func (c *Config) AWSSessionDuration() int64 {
 // SetAWSSessionDuration --
 func (c *Config) SetAWSSessionDuration(duration int64) error {
 	c.awsSessionDuration = duration
+	return nil
+}
+
+// AWSSessionPolicy returns the inline session policy JSON to pass when
+// assuming the role, or "" for none.
+func (c *Config) AWSSessionPolicy() string {
+	return c.awsSessionPolicy
+}
+
+// SetAWSSessionPolicyFile reads the inline session policy from path. An empty
+// path means no session policy. It fails rather than leave the policy unset if
+// the file cannot be read or is not JSON, so that a missing or broken file
+// never yields unrestricted credentials.
+func (c *Config) SetAWSSessionPolicyFile(path string) error {
+	c.awsSessionPolicy = ""
+	if path == "" {
+		return nil
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("reading session policy file: %w", err)
+	}
+	if !json.Valid(b) {
+		return fmt.Errorf("session policy file %q is not valid JSON", path)
+	}
+	c.awsSessionPolicy = string(b)
 	return nil
 }
 

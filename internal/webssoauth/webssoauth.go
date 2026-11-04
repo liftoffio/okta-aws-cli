@@ -827,7 +827,7 @@ func (w *WebSSOAuthentication) authorize() (*okta.DeviceAuthorization, error) {
 	apiURL := fmt.Sprintf("https://%s/oauth2/v1/device/authorize", w.config.OrgDomain())
 	data := url.Values{
 		"client_id": {clientID},
-		"scope":     {"openid okta.apps.sso okta.apps.read okta.users.read.self"},
+		"scope":     {"openid profile okta.apps.sso okta.apps.read okta.users.read.self"},
 	}
 	body := strings.NewReader(data.Encode())
 	req, err := http.NewRequest(http.MethodPost, apiURL, body)

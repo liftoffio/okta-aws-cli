@@ -150,7 +150,7 @@ func (w *WebSSOAuthentication) buildAuthorizeURL(redirectURI, codeChallenge, sta
 	params := url.Values{
 		"client_id":             {clientID},
 		"response_type":         {"code"},
-		"scope":                 {"openid okta.apps.sso okta.apps.read okta.users.read.self"},
+		"scope":                 {"openid profile okta.apps.sso okta.apps.read okta.users.read.self"},
 		"redirect_uri":          {redirectURI},
 		"state":                 {state},
 		"code_challenge":        {codeChallenge},

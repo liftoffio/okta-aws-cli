@@ -57,7 +57,7 @@ func TestBuildAuthorizeURL(t *testing.T) {
 	tests := map[string]string{
 		"client_id":             "test-client-id",
 		"response_type":         "code",
-		"scope":                 "openid okta.apps.sso okta.apps.read okta.users.read.self",
+		"scope":                 "openid profile okta.apps.sso okta.apps.read okta.users.read.self",
 		"redirect_uri":          "http://127.0.0.1:8080/callback",
 		"state":                 "test-state",
 		"code_challenge":        "test-challenge",
